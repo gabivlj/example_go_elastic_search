@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  web:
+    image: go-docker-webserver
+    build: .
+    ports:
+      - "5000:5000"
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+    environment:
+      node.name: es01
+      cluster.initial_master_nodes: es01,es02
+      cluster.name: docker-cluster
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: -Xms256m -Xmx256m
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+    environment:
+      node.name: es02
+      discovery.seed_hosts: es01
+      cluster.initial_master_nodes: es01,es02
+      cluster.name: docker-cluster
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: -Xms256m -Xmx256m
+    ports:
+      - "9201:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
